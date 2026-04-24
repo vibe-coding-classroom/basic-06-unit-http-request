@@ -1,0 +1,71 @@
+name: Autograding Tests
+'on':
+  - push
+  - repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check Project Structure
+        id: structure
+        uses: education/autograding-command-grader@v1
+        with:
+          test-name: Project Structure Check
+          setup-command: ''
+          command: |
+            test -f src/main.cpp && \
+            test -f include/api_config.h && \
+            test -f platformio.ini
+          timeout: 10
+          max-score: 20
+
+      - name: Check HTTP Header Implementation
+        id: header
+        uses: education/autograding-command-grader@v1
+        with:
+          test-name: HTTP Header Check
+          setup-command: ''
+          command: grep -q 'http.addHeader("Content-Type", "application/json")' src/main.cpp
+          timeout: 10
+          max-score: 30
+
+      - name: Check Resilience (No delay in loop)
+        id: resilience
+        uses: education/autograding-command-grader@v1
+        with:
+          test-name: Non-blocking Resilience Check
+          setup-command: ''
+          command: |
+            # Check if delay() exists inside loop()
+            # This is a basic regex check
+            ! sed -n '/void loop()/,/}/p' src/main.cpp | grep -q 'delay('
+          timeout: 10
+          max-score: 30
+
+      - name: Check Dependencies
+        id: dependencies
+        uses: education/autograding-command-grader@v1
+        with:
+          test-name: Library Dependency Check
+          setup-command: ''
+          command: grep -q 'ArduinoJson' platformio.ini
+          timeout: 10
+          max-score: 20
+
+      - name: Autograding Reporter
+        uses: education/autograding-grading-reporter@v1
+        env:
+          STRUCTURE_RESULTS: "${{steps.structure.outputs.result}}"
+          HEADER_RESULTS: "${{steps.header.outputs.result}}"
+          RESILIENCE_RESULTS: "${{steps.resilience.outputs.result}}"
+          DEPENDENCIES_RESULTS: "${{steps.dependencies.outputs.result}}"
+        with:
+          runners: structure,header,resilience,dependencies
