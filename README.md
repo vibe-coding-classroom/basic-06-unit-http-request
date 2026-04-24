@@ -1,5 +1,3 @@
-Viewed basic-06-unit-http-request.html:1-397
-
 針對 **`basic-06-unit-http-request` (HTTP 協議：請求與回應)** 單元，這是學員建立「網際網路基本語法」的核心課程。它要求學員具備 **通訊協議解析 (Protocol Analysis)** 的能力，學習如何分開「信封 (Headers)」與「信件 (Body)」，並掌握 HTTP 動詞 (Methods) 的語義，以便在物聯網系統中建立嚴謹且符合標準的數據上報模型。
 
 以下是在 **GitHub Classroom** 部署其作業 (Assignments) 的具體建議：
